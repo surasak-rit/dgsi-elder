@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="800" viewBox="0 0 1260 800" font-family="Loma, 'Noto Color Emoji', sans-serif">
+  <style>
+    .t   { fill:#fff; font-weight:700; }
+    .td  { fill:#fff; opacity:.9; }
+    .dark{ fill:#0f172a; font-weight:700; }
+    .sub { fill:#334155; }
+    .lbl { fill:#64748b; font-size:13px; }
+    text { text-anchor:middle; }
+    .ln  { stroke:#94a3b8; stroke-width:2; fill:none; }
+    .dash{ stroke:#ea580c; stroke-width:2; fill:none; stroke-dasharray:6 5; }
+  </style>
+
+  <rect x="0" y="0" width="1260" height="800" fill="#f8fafc"/>
+  <text x="630" y="40" class="dark" font-size="24">โครงสร้างทีมส่งมอบ &amp; Operating Model — ทีม 9 คน</text>
+  <text x="630" y="66" class="lbl" font-size="15">ERP (off-the-shelf) · Transformation/ระบบใหม่ · งานพันธกิจหลัก (BAU)</text>
+
+  <!-- connectors (draw first, under boxes) -->
+  <!-- steering -> tech lead / pmo -->
+  <path class="ln" d="M700,160 V188 H390 V210"/>
+  <path class="ln" d="M700,188 H1050 V210"/>
+  <!-- tech lead -> run / change headers -->
+  <path class="ln" d="M390,284 V322 H180 V348"/>
+  <path class="ln" d="M390,322 H605 V348"/>
+  <!-- run header -> members -->
+  <path class="ln" d="M180,402 V428"/>
+  <path class="ln" d="M180,494 V512"/>
+  <!-- change header -> columns -->
+  <path class="ln" d="M605,402 V414 H500 V424"/>
+  <path class="ln" d="M605,414 H715 V424"/>
+  <path class="ln" d="M500,484 V496"/>
+  <path class="ln" d="M500,556 V568"/>
+  <path class="ln" d="M715,484 V496"/>
+  <!-- pmo -> vendor (dashed) -->
+  <path class="dash" d="M1050,284 V362"/>
+  <!-- change cluster -> vendor (dashed) -->
+  <path class="dash" d="M817,452 H860 V405 H898"/>
+
+  <!-- STEERING -->
+  <rect x="520" y="96" width="360" height="64" rx="10" fill="#334155"/>
+  <text x="700" y="124" class="t" font-size="17">หัวหน้าศูนย์ / ผู้บริหาร</text>
+  <text x="700" y="146" class="td" font-size="13">Steering Committee</text>
+
+  <!-- TECH LEAD -->
+  <rect x="240" y="210" width="300" height="74" rx="10" fill="#4f46e5"/>
+  <text x="390" y="240" class="t" font-size="15">Senior #1 — Tech Lead / Architect</text>
+  <text x="390" y="263" class="td" font-size="12.5">กำหนดมาตรฐาน · คุมคุณภาพข้ามทีม</text>
+
+  <!-- PMO -->
+  <rect x="900" y="210" width="300" height="74" rx="10" fill="#7c3aed"/>
+  <text x="1050" y="240" class="t" font-size="15">จนท.บริหารงานทั่วไป — PMO</text>
+  <text x="1050" y="263" class="td" font-size="12.5">ติดตาม deadline · จัดซื้อจ้าง · ประสานงาน</text>
+
+  <!-- VENDOR -->
+  <rect x="898" y="362" width="304" height="80" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="1050" y="392" fill="#9a3412" font-weight="700" font-size="15">External Vendor / SI</text>
+  <text x="1050" y="415" fill="#9a3412" font-size="12.5">off-the-shelf ERP +</text>
+  <text x="1050" y="432" fill="#9a3412" font-size="12.5">งาน build หนัก</text>
+
+  <!-- RUN HEADER -->
+  <rect x="55" y="348" width="250" height="54" rx="9" fill="#15803d"/>
+  <text x="180" y="372" class="t" font-size="15">🟢 RUN TEAM</text>
+  <text x="180" y="392" class="td" font-size="12">พันธกิจหลัก / BAU (ล็อก)</text>
+
+  <!-- CHANGE HEADER -->
+  <rect x="395" y="348" width="420" height="54" rx="9" fill="#1d4ed8"/>
+  <text x="605" y="372" class="t" font-size="15">🔵 CHANGE TEAM</text>
+  <text x="605" y="392" class="td" font-size="12">ERP + ระบบใหม่</text>
+
+  <!-- RUN members -->
+  <rect x="55" y="428" width="250" height="66" rx="9" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="180" y="456" class="dark" font-size="14">Mid-level Dev #1</text>
+  <text x="180" y="478" class="sub" font-size="12.5">ดูแลระบบเดิม + support</text>
+
+  <rect x="55" y="512" width="250" height="66" rx="9" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="180" y="540" class="dark" font-size="14">DBA &amp; Reporter ⚠</text>
+  <text x="180" y="562" class="sub" font-size="12.5">ฐานข้อมูล + รายงาน (แชร์)</text>
+
+  <!-- CHANGE members col-left center 500 -->
+  <rect x="398" y="424" width="204" height="60" rx="9" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="500" y="450" class="dark" font-size="14">Senior #2</text>
+  <text x="500" y="470" class="sub" font-size="12.5">ERP Module Owner</text>
+
+  <rect x="398" y="496" width="204" height="60" rx="9" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="500" y="522" class="dark" font-size="14">Mid-level Senior #1</text>
+  <text x="500" y="542" class="sub" font-size="12.5">Integration Lead</text>
+
+  <rect x="398" y="568" width="204" height="60" rx="9" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="500" y="594" class="dark" font-size="14">Mid-level Dev #2</text>
+  <text x="500" y="614" class="sub" font-size="12.5">Build / Config support</text>
+
+  <!-- CHANGE members col-right center 715 -->
+  <rect x="613" y="424" width="204" height="60" rx="9" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="715" y="450" class="dark" font-size="14">Senior #3</text>
+  <text x="715" y="470" class="sub" font-size="12.5">New Systems Owner</text>
+
+  <rect x="613" y="496" width="204" height="60" rx="9" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="715" y="522" class="dark" font-size="14">Mid-level Senior #2</text>
+  <text x="715" y="542" class="sub" font-size="12.5">Build Lead</text>
+
+  <!-- dashed labels -->
+  <text x="980" y="320" fill="#9a3412" font-size="12">จ้าง / คุมสัญญา</text>
+  <text x="858" y="478" fill="#9a3412" font-size="12">สั่งงาน · UAT</text>
+
+  <!-- LEGEND -->
+  <rect x="55" y="664" width="1150" height="96" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <rect x="75" y="684" width="18" height="18" rx="4" fill="#15803d"/>
+  <text x="103" y="698" text-anchor="start" class="sub" font-size="13">Run Team — งานพันธกิจหลัก (ถูกล็อก ห้ามดึงไปโครงการ)</text>
+  <rect x="75" y="712" width="18" height="18" rx="4" fill="#1d4ed8"/>
+  <text x="103" y="726" text-anchor="start" class="sub" font-size="13">Change Team — ERP + ระบบใหม่</text>
+  <rect x="640" y="684" width="18" height="18" rx="4" fill="#fff7ed" stroke="#ea580c"/>
+  <text x="668" y="698" text-anchor="start" class="sub" font-size="13">Vendor ลงมือ build (R) · คนในถือความรับผิดชอบ (A) ไม่ lock-in</text>
+  <rect x="640" y="712" width="18" height="18" rx="4" fill="#fee2e2" stroke="#dc2626"/>
+  <text x="668" y="726" text-anchor="start" class="sub" font-size="13">⚠ DBA &amp; Reporter = SPOF → ต้องทำ KT + มี vendor สำรอง</text>
+  <text x="75" y="750" text-anchor="start" class="lbl" font-size="11.5">R=Responsible · A=Accountable · C=Consulted · I=Informed   |   เส้นประสีส้ม = ความสัมพันธ์กับผู้ให้บริการภายนอก</text>
+</svg>
