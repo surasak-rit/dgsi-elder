@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AMC Performance Report — ต้นแบบ Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Trirong:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16314f; --navy-2:#1f3f63; --ink:#1a2330; --ivory:#f6f1e7; --paper:#fbf8f1;
+    --gold:#b8893b; --gold-soft:#d9b877; --teal:#3f7d77; --terra:#b15c3c; --slate:#8c97a8;
+    --line:#e3dccb; --line-2:#d2c8b2; --good:#2f7d57; --bad:#b1452f;
+    --shadow:0 1px 2px rgba(22,49,79,.06),0 12px 32px -12px rgba(22,49,79,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"IBM Plex Sans Thai",sans-serif; color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #fff7e9 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, #eef2f5 0%, transparent 55%),
+      var(--ivory);
+    min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .num{font-family:"IBM Plex Mono",monospace; font-feature-settings:"tnum"}
+  .serif{font-family:"Trirong",serif}
+
+  /* ---------- Top bar ---------- */
+  header.topbar{
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+    padding:16px clamp(16px,4vw,46px); background:var(--navy);
+    color:#f3ead5; border-bottom:3px solid var(--gold);
+  }
+  .crest{
+    width:42px;height:42px;border-radius:50%;flex:0 0 auto;
+    background:radial-gradient(circle at 35% 30%, var(--gold-soft), var(--gold) 70%);
+    display:grid;place-items:center;color:var(--navy);font-weight:700;
+    font-family:"Trirong",serif;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)
+  }
+  .brand h1{font-family:"Trirong",serif;font-weight:600;font-size:1.18rem;margin:0;letter-spacing:.2px}
+  .brand p{margin:2px 0 0;font-size:.74rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold-soft)}
+  .topbar .spacer{flex:1}
+  .selectwrap{display:flex;flex-direction:column;gap:3px}
+  .selectwrap label{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:#9fb2c8}
+  .selectwrap select,.selectwrap .pill{
+    font-family:inherit;font-size:.86rem;background:var(--navy-2);color:#f3ead5;
+    border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:7px 12px;min-width:230px
+  }
+  .selectwrap .pill{display:flex;align-items:center;gap:8px}
+  .asof{text-align:right}
+  .asof b{font-family:"IBM Plex Mono",monospace;font-size:.95rem;color:#fff}
+  .asof span{display:block;font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:#9fb2c8}
+
+  /* ---------- Tabs ---------- */
+  nav.tabs{
+    display:flex;gap:2px;overflow-x:auto;background:var(--navy-2);
+    padding:0 clamp(8px,3vw,38px);border-bottom:1px solid rgba(0,0,0,.2)
+  }
+  nav.tabs button{
+    font-family:"IBM Plex Sans Thai",sans-serif;font-size:.84rem;white-space:nowrap;
+    color:#c6d2e0;background:transparent;border:0;cursor:pointer;padding:13px 16px 12px;
+    border-bottom:3px solid transparent;transition:.18s;display:flex;gap:8px;align-items:center
+  }
+  nav.tabs button .ix{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--gold-soft);
+    border:1px solid rgba(217,184,119,.4);border-radius:5px;padding:1px 5px}
+  nav.tabs button:hover{color:#fff;background:rgba(255,255,255,.04)}
+  nav.tabs button.active{color:#fff;border-bottom-color:var(--gold);background:rgba(184,137,59,.12)}
+
+  /* ---------- Layout ---------- */
+  main{max-width:1180px;margin:0 auto;padding:clamp(18px,3vw,34px) clamp(14px,4vw,40px) 60px}
+  .view{display:none;animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+  .view.active{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .eyebrow{font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:600;margin:0 0 6px}
+  .vtitle{font-family:"Trirong",serif;font-size:clamp(1.5rem,3vw,2.1rem);font-weight:600;margin:0 0 4px;color:var(--navy)}
+  .vsub{margin:0 0 22px;color:#5d6675;font-size:.94rem;max-width:62ch}
+
+  /* story callout */
+  .story{
+    position:relative;background:linear-gradient(180deg,#fffdf8,#fbf6ea);
+    border:1px solid var(--line-2);border-left:4px solid var(--gold);border-radius:12px;
+    padding:16px 20px 16px 22px;margin:0 0 26px;box-shadow:var(--shadow)
+  }
+  .story .tag{font-size:.64rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .story p{margin:6px 0 0;font-size:.98rem;line-height:1.6;color:#33404f}
+  .story p b{color:var(--navy)}
+  .story .quill{position:absolute;top:14px;right:18px;font-family:"Trirong",serif;font-size:2.4rem;color:var(--line-2);line-height:1}
+
+  /* KPI cards */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:26px}
+  .kpi{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi::after{content:"";position:absolute;inset:0 0 auto auto;width:60px;height:60px;background:radial-gradient(circle at 70% 30%,rgba(184,137,59,.14),transparent 70%)}
+  .kpi .lab{font-size:.72rem;letter-spacing:1.4px;text-transform:uppercase;color:#7a8494}
+  .kpi .val{font-family:"IBM Plex Mono",monospace;font-size:1.7rem;font-weight:600;color:var(--navy);margin:6px 0 2px;letter-spacing:-.5px}
+  .kpi .val .cur{font-size:.95rem;color:var(--gold);font-weight:500;margin-right:3px}
+  .kpi .meta{font-size:.78rem;color:#6b7embed}
+  .chip{display:inline-flex;align-items:center;gap:4px;font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:600;border-radius:20px;padding:2px 9px}
+  .chip.up{background:#e7f3ec;color:var(--good)}
+  .chip.dn{background:#f6e7e3;color:var(--bad)}
+  .chip.flat{background:#eef0f3;color:#5d6675}
+
+  /* panels */
+  .grid2{display:grid;grid-template-columns:1.3fr .9fr;gap:20px}
+  .grid2.rev{grid-template-columns:.9fr 1.3fr}
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:20px}
+  .panel h3{font-family:"Trirong",serif;font-weight:600;color:var(--navy);margin:0 0 2px;font-size:1.12rem}
+  .panel .h-sub{font-size:.78rem;color:#7a8494;margin:0 0 16px}
+
+  table{width:100%;border-collapse:collapse;font-size:.86rem}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{font-size:.68rem;letter-spacing:.8px;text-transform:uppercase;color:#7a8494;border-bottom:1.5px solid var(--line-2)}
+  tbody tr:hover{background:#fffaf0}
+  td.num,th.num{font-family:"IBM Plex Mono",monospace}
+  .rowlab{font-weight:600;color:var(--navy)}
+  .rowlab.bm{font-weight:400;color:#5d6675}
+  .rowlab.vol{font-weight:400;color:#8c7a52;font-size:.82rem}
+  .pos{color:var(--good)} .neg{color:var(--bad)}
+  .legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:14px;font-size:.82rem}
+  .legend .it{display:flex;align-items:center;gap:7px}
+  .legend .sw{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+
+  .alloc-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+  .alloc-row .barwrap{grid-column:1/-1;height:7px;background:#ece5d4;border-radius:6px;overflow:hidden}
+  .alloc-row .bar{height:100%;border-radius:6px}
+  .alloc-row .nm{font-size:.88rem;color:var(--ink)}
+  .alloc-row .nm .dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px;vertical-align:middle}
+  .alloc-row .vv{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--navy);font-weight:600;white-space:nowrap}
+  .alloc-row.sub .nm{padding-left:24px;font-size:.8rem;color:#5d6675}
+  .alloc-row.sub .vv{font-weight:400;color:#5d6675}
+
+  .toggle{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;margin-bottom:6px}
+  .toggle button{font-family:inherit;font-size:.8rem;border:0;background:transparent;padding:7px 14px;cursor:pointer;color:#6b7280}
+  .toggle button.on{background:var(--navy);color:#fff}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .cap-event{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.5px;padding:2px 7px;border-radius:5px}
+  .cap-inc{background:#e7f3ec;color:var(--good)} .cap-dec{background:#f6e7e3;color:var(--bad)}
+  footer{max-width:1180px;margin:0 auto;padding:22px clamp(14px,4vw,40px) 40px;color:#8a8470;font-size:.74rem;border-top:1px solid var(--line);line-height:1.7}
+  footer b{color:var(--navy)}
+  @media(max-width:780px){.grid2,.grid2.rev{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="crest serif">ม</div>
+  <div class="brand">
+    <h1>รายงานผลการดำเนินงานการลงทุน</h1>
+    <p>Mahidol · Asset Management Center</p>
+  </div>
+  <div class="spacer"></div>
+  <div class="selectwrap">
+    <label>กองทุนที่ดูแล (ตามสิทธิ์)</label>
+    <select>
+      <option>4900-2013 · บัณฑิตวิทยาลัย (แผนมั่งมี)</option>
+      <option>MU_CA+NONC · รวมมหิดล (หมุนเวียน+ไม่หมุนเวียน)</option>
+      <option>4900-1001 · สนง.อธิการบดี — เงินหมุนเวียน</option>
+    </select>
+  </div>
+  <div class="asof selectwrap">
+    <span>ข้อมูล ณ วันที่</span>
+    <b>19 ส.ค. 2568</b>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="active" data-t="ov"><span class="ix">00</span> ภาพรวม</button>
+  <button data-t="p1"><span class="ix">01</span> ผลตอบแทนปักหมุด</button>
+  <button data-t="p2"><span class="ix">02</span> ผลตอบแทนตามช่วงเวลา</button>
+  <button data-t="p3"><span class="ix">03</span> กราฟ NAV</button>
+  <button data-t="p4"><span class="ix">04</span> การเคลื่อนไหวเงินลงทุน</button>
+  <button data-t="p5"><span class="ix">05</span> สัดส่วนสินทรัพย์</button>
+</nav>
+
+<main>
+
+<!-- ============ 00 OVERVIEW ============ -->
+<section class="view active" id="ov">
+  <p class="eyebrow">Executive Overview</p>
+  <h2 class="vtitle">เงินของท่านทำงานเป็นอย่างไร</h2>
+  <p class="vsub">มุมมองสรุปกองทุน <b>4900-2013 บัณฑิตวิทยาลัย</b> — เริ่มจากภาพรวม แล้วเจาะรายละเอียดในแท็บถัดไป (overview first → details on demand)</p>
+
+  <div class="story">
+    <span class="quill serif">“</span>
+    <span class="tag">เรื่องเล่าประจำงวด</span>
+    <p>ณ วันที่ 19 ส.ค. 2568 พอร์ตของท่านมีมูลค่า <b>5,183.61 ล้านบาท</b> เติบโตจากมูลค่าหน่วยตั้งต้น 10 บาท มาเป็น <b>22.49 บาท/หน่วย</b> หรือ <b>+124.9%</b> ตั้งแต่จัดตั้ง ผลตอบแทนรอบ 1 ปี <b>+1.79%</b> <b>ชนะดัชนีชี้วัด +0.09%</b> ขณะที่ความผันผวนอยู่ในระดับ <b>ต่ำมาก (0.07%)</b> สะท้อนพอร์ตที่เน้นความมั่นคง โดยเงินกว่า <b>85% อยู่ในตราสารหนี้</b></p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="lab">มูลค่าทรัพย์สินสุทธิ</div>
+      <div class="val"><span class="cur">฿</span>5,183.61<span style="font-size:.9rem;color:#7a8494"> ลบ.</span></div>
+      <div class="meta">5,458,381.61 หน่วย</div>
+    </div>
+    <div class="kpi">
+      <div class="lab">NAV ต่อหน่วย</div>
+      <div class="val">22.4902</div>
+      <div class="meta">ตั้งต้น 10.00 → <span class="chip up">▲ +124.9%</span></div>
+    </div>
+    <div class="kpi">
+      <div class="lab">ผลตอบแทน 1 ปี</div>
+      <div class="val">+1.79<span style="font-size:.9rem">%</span></div>
+      <div class="meta">ดัชนี +1.70% <span class="chip up">▲ ชนะ 0.09</span></div>
+    </div>
+    <div class="kpi">
+      <div class="lab">ความผันผวน 1 ปี (ต่อปี)</div>
+      <div class="val">0.07<span style="font-size:.9rem">%</span></div>
+      <div class="meta">ดัชนี 0.05% <span class="chip flat">เสี่ยงต่ำ</span></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3>ผลตอบแทนเทียบดัชนีชี้วัด</h3>
+      <p class="h-sub">กองทุน vs ดัชนี — ตามช่วงเวลา (%)</p>
+      <svg viewBox="0 0 560 240" role="img" aria-label="กราฟแท่งผลตอบแทนเทียบดัชนี">
+        <!-- baseline -->
+        <line x1="44" y1="200" x2="540" y2="200" stroke="#d2c8b2"/>
+        <!-- gridlines -->
+        <g stroke="#ece5d4" font-family="IBM Plex Mono" font-size="9" fill="#9a93">
+          <line x1="44" y1="150" x2="540" y2="150"/><line x1="44" y1="100" x2="540" y2="100"/><line x1="44" y1="50" x2="540" y2="50"/>
+        </g>
+        <g font-family="IBM Plex Mono" font-size="9" fill="#9a9484" text-anchor="end">
+          <text x="40" y="203">0</text><text x="40" y="153">0.6</text><text x="40" y="103">1.2</text><text x="40" y="53">1.8</text>
+        </g>
+        <!-- groups: 1M3M6M1Y3Y5Y -->
+        <g>
+          <!-- fund vals %: .37 .37 .80 1.79 1.48 0.98 ; bm: .34 .34 .78 1.70 1.62 1.14  scale 1.8%=150px from base200 -->
+          <!-- helper: y = 200 - v/1.8*150 -->
+          <!-- 1M -->
+          <rect x="62"  y="169.2" width="18" height="30.8" fill="#16314f"/><rect x="82" y="171.7" width="18" height="28.3" fill="#c08b3e"/>
+          <!-- 3M -->
+          <rect x="142" y="169.2" width="18" height="30.8" fill="#16314f"/><rect x="162" y="171.7" width="18" height="28.3" fill="#c08b3e"/>
+          <!-- 6M -->
+          <rect x="222" y="133.3" width="18" height="66.7" fill="#16314f"/><rect x="242" y="135"  width="18" height="65"  fill="#c08b3e"/>
+          <!-- 1Y -->
+          <rect x="302" y="50.8"  width="18" height="149.2" fill="#16314f"/><rect x="322" y="58.3" width="18" height="141.7" fill="#c08b3e"/>
+          <!-- 3Y -->
+          <rect x="382" y="76.7"  width="18" height="123.3" fill="#16314f"/><rect x="402" y="65"   width="18" height="135"  fill="#c08b3e"/>
+          <!-- 5Y -->
+          <rect x="462" y="118.3" width="18" height="81.7" fill="#16314f"/><rect x="482" y="105"  width="18" height="95"   fill="#c08b3e"/>
+        </g>
+        <g font-family="IBM Plex Sans Thai" font-size="10" fill="#5d6675" text-anchor="middle">
+          <text x="81" y="216">1 เดือน</text><text x="161" y="216">3 เดือน</text><text x="241" y="216">6 เดือน</text>
+          <text x="321" y="216">1 ปี</text><text x="401" y="216">3 ปี</text><text x="481" y="216">5 ปี</text>
+        </g>
+      </svg>
+      <div class="legend">
+        <div class="it"><span class="sw" style="background:#16314f"></span> กองทุน 4900-2013</div>
+        <div class="it"><span class="sw" style="background:#c08b3e"></span> ดัชนีชี้วัด</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>สัดส่วนสินทรัพย์</h3>
+      <p class="h-sub">ภาพรวมกลุ่มหลัก — 100% = ฿5,183.61 ลบ.</p>
+      <svg viewBox="0 0 220 200" role="img" aria-label="โดนัทสัดส่วนสินทรัพย์">
+        <g transform="translate(100,100) rotate(-90)" fill="none" stroke-width="30">
+          <!-- C=502.65 r=80 -->
+          <circle r="80" stroke="#16314f" stroke-dasharray="426.95 502.65" stroke-dashoffset="0"/>
+          <circle r="80" stroke="#c08b3e" stroke-dasharray="38.40 502.65" stroke-dashoffset="-426.95"/>
+          <circle r="80" stroke="#3f7d77" stroke-dasharray="27.04 502.65" stroke-dashoffset="-465.35"/>
+          <circle r="80" stroke="#b15c3c" stroke-dasharray="9.60 502.65" stroke-dashoffset="-492.39"/>
+          <circle r="80" stroke="#8c97a8" stroke-dasharray="0.65 502.65" stroke-dashoffset="-501.99"/>
+        </g>
+        <text x="100" y="95" text-anchor="middle" font-family="IBM Plex Mono" font-size="22" font-weight="600" fill="#16314f">84.9%</text>
+        <text x="100" y="113" text-anchor="middle" font-family="IBM Plex Sans Thai" font-size="10" fill="#7a8494">ตราสารหนี้</text>
+      </svg>
+      <div class="legend">
+        <div class="it"><span class="sw" style="background:#16314f"></span> ตราสารหนี้ 84.9%</div>
+        <div class="it"><span class="sw" style="background:#c08b3e"></span> อสังหาฯ 7.6%</div>
+        <div class="it"><span class="sw" style="background:#3f7d77"></span> ตราสารทุน 5.4%</div>
+        <div class="it"><span class="sw" style="background:#b15c3c"></span> โภคภัณฑ์ 1.9%</div>
+        <div class="it"><span class="sw" style="background:#8c97a8"></span> เจ้าหนี้/ลูกหนี้ 0.1%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 01 PINNED ============ -->
+<section class="view" id="p1">
+  <p class="eyebrow">หน้า 1 · Point-to-Point</p>
+  <h2 class="vtitle">ผลการดำเนินงานเทียบเกณฑ์วัด (แบบปักหมุด)</h2>
+  <p class="vsub">ผลตอบแทนสะสมถึงวันที่ล่าสุด · เก็บทศนิยม 6 ตำแหน่ง แสดง 2 ตำแหน่ง · ช่วงต่ำกว่า 1 ปีไม่ทำเป็นรายปี (ตาม GIPS 2.A.12)</p>
+
+  <div class="story">
+    <span class="tag">อ่านอย่างไร</span>
+    <p>กองทุน <b>ชนะดัชนีในกรอบสั้นถึงกลาง</b> (1 เดือน–1 ปี) ด้วยความผันผวนที่ต่ำกว่ามาก — ส่วนกรอบยาว (3–10 ปี) ดัชนีนำเล็กน้อย ซึ่งเป็นธรรมชาติของพอร์ตเน้นตราสารหนี้ที่แลกผลตอบแทนกับ <b>ความเสี่ยงที่ต่ำกว่า</b></p>
+  </div>
+
+  <div class="panel">
+    <table>
+      <thead>
+        <tr><th>รายการ</th><th class="num">1 เดือน</th><th class="num">3 เดือน</th><th class="num">6 เดือน</th><th class="num">1 ปี*</th><th class="num">3 ปี*</th><th class="num">5 ปี*</th><th class="num">10 ปี*</th><th class="num">ตั้งแต่จัดตั้ง*</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="rowlab">กองทุน MU_CA+NONC</td><td class="num pos">0.37</td><td class="num pos">0.37</td><td class="num pos">0.80</td><td class="num pos">1.79</td><td class="num pos">1.48</td><td class="num pos">0.98</td><td class="num pos">0.98</td><td class="num pos">1.67</td></tr>
+        <tr><td class="rowlab bm">ดัชนีชี้วัด</td><td class="num">0.34</td><td class="num">0.34</td><td class="num">0.78</td><td class="num">1.70</td><td class="num">1.62</td><td class="num">1.14</td><td class="num">1.23</td><td class="num">2.31</td></tr>
+        <tr><td class="rowlab vol">ความผันผวนกองทุน</td><td class="num">0.07</td><td class="num">0.07</td><td class="num">0.07</td><td class="num">0.07</td><td class="num">0.08</td><td class="num">0.07</td><td class="num">0.06</td><td class="num">0.10</td></tr>
+        <tr><td class="rowlab vol">ความผันผวนดัชนีชี้วัด</td><td class="num">0.03</td><td class="num">0.03</td><td class="num">0.03</td><td class="num">0.05</td><td class="num">0.05</td><td class="num">0.04</td><td class="num">0.04</td><td class="num">0.95</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:.74rem;color:#8a8470;margin:14px 0 0">* ตั้งแต่ 1 ปีขึ้นไปแสดงเป็นอัตราต่อปี (annualized) · ความผันผวนแสดงแบบต่อปี (SD × √12)</p>
+  </div>
+</section>
+
+<!-- ============ 02 PERIOD ============ -->
+<section class="view" id="p2">
+  <p class="eyebrow">หน้า 2 · Period Returns</p>
+  <h2 class="vtitle">ผลการดำเนินงานตามช่วงเวลา</h2>
+  <p class="vsub">อัตราผลตอบแทนรายปีงบประมาณ (RA ไม่หมุนเวียน, % ต่อปี) — เลือกได้ตามรายเดือน / ไตรมาส / ปีปฏิทิน / ปีงบประมาณ</p>
+
+  <div class="story">
+    <span class="tag">แนวโน้ม</span>
+    <p>กองทุนสร้างผลตอบแทน <b>เป็นบวกทุกปีงบประมาณ</b> ตั้งแต่ FY2564–2567 และ <b>เร่งตัวขึ้นใน FY2567 ที่ +6.72%</b> สูงกว่าดัชนีในทุกปี สะท้อนการบริหารที่สม่ำเสมอ</p>
+  </div>
+
+  <div class="panel">
+    <div class="toggle"><button class="on">ปีงบประมาณ</button><button>ปีปฏิทิน</button><button>ไตรมาส</button><button>รายเดือน</button></div>
+    <svg viewBox="0 0 500 250" role="img" aria-label="กราฟแท่งผลตอบแทนรายปีงบประมาณ">
+      <line x1="44" y1="210" x2="480" y2="210" stroke="#d2c8b2"/>
+      <g font-family="IBM Plex Mono" font-size="9" fill="#9a9484" text-anchor="end">
+        <text x="40" y="213">0</text><text x="40" y="168">2</text><text x="40" y="126">4</text><text x="40" y="84">6</text>
+      </g>
+      <g stroke="#ece5d4"><line x1="44" y1="165" x2="480" y2="165"/><line x1="44" y1="123" x2="480" y2="123"/><line x1="44" y1="81" x2="480" y2="81"/></g>
+      <!-- scale 2%=42px ; y=210 - v*21 -->
+      <g>
+        <!-- FY64 fund6.41 bm4.75 -->
+        <rect x="78"  y="75.4"  width="26" height="134.6" fill="#16314f"/><rect x="106" y="110.2" width="26" height="99.8"  fill="#c08b3e"/>
+        <!-- FY65 fund4.75 bm3.99 -->
+        <rect x="178" y="110.2" width="26" height="99.8"  fill="#16314f"/><rect x="206" y="126.2" width="26" height="83.8"  fill="#c08b3e"/>
+        <!-- FY66 fund5.76 bm5.20 -->
+        <rect x="278" y="89.0"  width="26" height="121.0" fill="#16314f"/><rect x="306" y="100.8" width="26" height="109.2" fill="#c08b3e"/>
+        <!-- FY67 fund6.72 bm5.80 -->
+        <rect x="378" y="68.9"  width="26" height="141.1" fill="#16314f"/><rect x="406" y="88.2"  width="26" height="121.8" fill="#c08b3e"/>
+      </g>
+      <g font-family="IBM Plex Mono" font-size="10" fill="#16314f" text-anchor="middle" font-weight="600">
+        <text x="91" y="70">6.41</text><text x="191" y="105">4.75</text><text x="291" y="84">5.76</text><text x="391" y="64">6.72</text>
+      </g>
+      <g font-family="IBM Plex Sans Thai" font-size="11" fill="#5d6675" text-anchor="middle">
+        <text x="105" y="228">FY2564</text><text x="205" y="228">FY2565</text><text x="305" y="228">FY2566</text><text x="405" y="228">FY2567</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <div class="it"><span class="sw" style="background:#16314f"></span> RA ไม่หมุนเวียน</div>
+      <div class="it"><span class="sw" style="background:#c08b3e"></span> ดัชนีชี้วัด</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 NAV CHART ============ -->
+<section class="view" id="p3">
+  <p class="eyebrow">หน้า 3 · NAV Trend</p>
+  <h2 class="vtitle">กราฟมูลค่าสินทรัพย์สุทธิ</h2>
+  <p class="vsub">แสดงได้ทั้ง NAV (บาท) และ NAV ต่อหน่วย · เลือกเทียบหลายกองพร้อมกันได้</p>
+
+  <div class="story">
+    <span class="tag">เส้นทางการเติบโต</span>
+    <p>มูลค่าหน่วยลงทุนเติบโต <b>ต่อเนื่องจาก 10.00 บาท สู่ 22.49 บาท</b> ตลอดอายุกองทุน — เส้นที่ลาดขึ้นอย่างราบเรียบคือภาพสะท้อนของพอร์ตความเสี่ยงต่ำที่ <b>ทบต้นอย่างมั่นคง</b> โดยไม่มีช่วงดิ่งลงรุนแรง</p>
+  </div>
+
+  <div class="panel">
+    <div class="toggle"><button class="on">NAV ต่อหน่วย</button><button>NAV (บาท)</button></div>
+    <svg viewBox="0 0 600 250" role="img" aria-label="กราฟเส้น NAV ต่อหน่วย">
+      <defs>
+        <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#c08b3e" stop-opacity=".28"/>
+          <stop offset="1" stop-color="#c08b3e" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g stroke="#ece5d4"><line x1="40" y1="196" x2="575" y2="196"/><line x1="40" y1="143" x2="575" y2="143"/><line x1="40" y1="90" x2="575" y2="90"/><line x1="40" y1="38" x2="575" y2="38"/></g>
+      <g font-family="IBM Plex Mono" font-size="9" fill="#9a9484" text-anchor="end">
+        <text x="36" y="199">10</text><text x="36" y="146">14</text><text x="36" y="93">18</text><text x="36" y="41">22</text>
+      </g>
+      <polygon fill="url(#fill)" points="40,196.25 92,182 144,165.4 196,147.6 248,127.4 300,109.6 352,90.6 404,76.4 456,62.1 508,54.4 560,47.9 560,220 40,220"/>
+      <polyline fill="none" stroke="#16314f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"
+        points="40,196.25 92,182 144,165.4 196,147.6 248,127.4 300,109.6 352,90.6 404,76.4 456,62.1 508,54.4 560,47.9"/>
+      <g fill="#c08b3e">
+        <circle cx="40" cy="196.25" r="3"/><circle cx="560" cy="47.9" r="4.5" stroke="#fff" stroke-width="1.5"/>
+      </g>
+      <text x="560" y="38" text-anchor="end" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="#16314f">22.49</text>
+      <text x="40" y="210" text-anchor="start" font-family="IBM Plex Mono" font-size="10" fill="#7a8494">10.00</text>
+      <g font-family="IBM Plex Sans Thai" font-size="10" fill="#5d6675" text-anchor="middle">
+        <text x="40" y="234">2558</text><text x="196" y="234">2561</text><text x="352" y="234">2564</text><text x="508" y="234">2567</text><text x="560" y="234">2568</text>
+      </g>
+    </svg>
+    <p style="font-size:.74rem;color:#8a8470;margin:12px 0 0">หมายเหตุ: เส้นเป็นข้อมูลประกอบเชิงภาพ (illustrative) เพื่อแสดงรูปแบบ — ค่าจริงดึงจากไฟล์ Unit Movement รายวัน</p>
+  </div>
+</section>
+
+<!-- ============ 04 MOVEMENT ============ -->
+<section class="view" id="p4">
+  <p class="eyebrow">หน้า 4 · Unit Movement</p>
+  <h2 class="vtitle">รายการเคลื่อนไหวของเงินลงทุนย้อนหลัง</h2>
+  <p class="vsub">ค่าเริ่มต้นแสดงทั้งหมดตั้งแต่จัดตั้งกองทุน · เลือกทีละ 1 กองทุน</p>
+
+  <div class="story">
+    <span class="tag">สิ่งที่เกิดขึ้น</span>
+    <p>ช่วง 6–19 ส.ค. 2568 NAV ต่อหน่วยแกว่งในกรอบแคบราว <b>22.45–22.88</b> มีรายการ <b>เพิ่มทุน (14 ส.ค.)</b> และ <b>ลดทุน (19 ส.ค. −364,048 บาท)</b> ซึ่งเป็นการบริหารกระแสเงินตามปกติ ไม่ได้กระทบมูลค่าต่อหน่วยอย่างมีนัยสำคัญ</p>
+  </div>
+
+  <div class="panel">
+    <table>
+      <thead>
+        <tr><th>วันที่</th><th class="num">มูลค่าทรัพย์สินสุทธิ (บาท)</th><th class="num">จำนวนหน่วย</th><th class="num">NAV/หน่วย</th><th class="num">เงินเข้า-ออก (บาท)</th><th>ประเภททุน</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>19 ส.ค. 2568</td><td class="num">4,386,011,342.26</td><td class="num">5,458,381.61</td><td class="num">22.4902</td><td class="num neg">−364,048.11</td><td><span class="cap-event cap-dec">CAPITAL DECREASE</span></td></tr>
+        <tr><td>18 ส.ค. 2568</td><td class="num">4,378,805,694.89</td><td class="num">5,458,381.61</td><td class="num">22.4780</td><td class="num">—</td><td></td></tr>
+        <tr><td>15 ส.ค. 2568</td><td class="num">4,370,724,397.44</td><td class="num">5,458,381.61</td><td class="num">22.4596</td><td class="num">—</td><td></td></tr>
+        <tr><td>14 ส.ค. 2568</td><td class="num">4,366,843,158.60</td><td class="num">5,458,381.61</td><td class="num">22.4509</td><td class="num">—</td><td><span class="cap-event cap-inc">CAPITAL INCREASE</span></td></tr>
+        <tr><td>13 ส.ค. 2568</td><td class="num">4,365,034,252.87</td><td class="num">5,458,381.61</td><td class="num">22.4810</td><td class="num">—</td><td></td></tr>
+        <tr><td>8 ส.ค. 2568</td><td class="num">4,433,065,114.82</td><td class="num">5,458,381.61</td><td class="num">22.8796</td><td class="num">—</td><td></td></tr>
+        <tr><td>7 ส.ค. 2568</td><td class="num">4,383,623,293.09</td><td class="num">5,458,381.61</td><td class="num">22.6317</td><td class="num">—</td><td></td></tr>
+        <tr><td>6 ส.ค. 2568</td><td class="num">4,370,953,621.18</td><td class="num">5,458,381.61</td><td class="num">22.5806</td><td class="num">—</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 05 ALLOCATION ============ -->
+<section class="view" id="p5">
+  <p class="eyebrow">หน้า 5 · Asset Allocation</p>
+  <h2 class="vtitle">กลุ่มและสัดส่วนของสินทรัพย์ที่ถือครอง</h2>
+  <p class="vsub">เลือกทีละ 1 กองทุน และเลือกวันที่ตามข้อมูลจริง · เจาะลึกได้ถึงระดับหลักทรัพย์รายตัว</p>
+
+  <div class="story">
+    <span class="tag">โครงสร้างพอร์ต</span>
+    <p>พอร์ตวางน้ำหนักไปที่ <b>ความมั่นคงเป็นหลัก</b> — ตราสารหนี้ <b>84.9%</b> (โดยเฉพาะหุ้นกู้รัฐวิสาหกิจ/เอกชน 43.8% และพันธบัตร 21.6%) เสริมด้วยอสังหาฯ/REITs 7.6% และตราสารทุนเพียง 5.4% เพื่อโอกาสเติบโต พร้อมทองคำ 1.9% กระจายความเสี่ยง</p>
+  </div>
+
+  <div class="grid2 rev">
+    <div class="panel">
+      <h3>ภาพรวมกลุ่มหลัก</h3>
+      <p class="h-sub">รวม ฿5,183.61 ลบ.</p>
+      <svg viewBox="0 0 220 210" role="img" aria-label="โดนัทสัดส่วนสินทรัพย์">
+        <g transform="translate(100,100) rotate(-90)" fill="none" stroke-width="32">
+          <circle r="80" stroke="#16314f" stroke-dasharray="426.95 502.65" stroke-dashoffset="0"/>
+          <circle r="80" stroke="#c08b3e" stroke-dasharray="38.40 502.65" stroke-dashoffset="-426.95"/>
+          <circle r="80" stroke="#3f7d77" stroke-dasharray="27.04 502.65" stroke-dashoffset="-465.35"/>
+          <circle r="80" stroke="#b15c3c" stroke-dasharray="9.60 502.65" stroke-dashoffset="-492.39"/>
+          <circle r="80" stroke="#8c97a8" stroke-dasharray="0.65 502.65" stroke-dashoffset="-501.99"/>
+        </g>
+        <text x="100" y="96" text-anchor="middle" font-family="IBM Plex Mono" font-size="20" font-weight="600" fill="#16314f">฿5,183</text>
+        <text x="100" y="113" text-anchor="middle" font-family="IBM Plex Sans Thai" font-size="9" fill="#7a8494">ล้านบาท</text>
+      </svg>
+      <div class="legend">
+        <div class="it"><span class="sw" style="background:#16314f"></span> ตราสารหนี้</div>
+        <div class="it"><span class="sw" style="background:#c08b3e"></span> อสังหาฯ</div>
+        <div class="it"><span class="sw" style="background:#3f7d77"></span> ตราสารทุน</div>
+        <div class="it"><span class="sw" style="background:#b15c3c"></span> โภคภัณฑ์</div>
+        <div class="it"><span class="sw" style="background:#8c97a8"></span> เจ้าหนี้/ลูกหนี้</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>รายละเอียดตามกลุ่ม (เจาะลึกได้)</h3>
+      <p class="h-sub">%NAV และ Market Value</p>
+
+      <div class="alloc-row"><div class="nm"><span class="dot" style="background:#16314f"></span>ตราสารหนี้</div><div class="vv">84.94% · 4,403.08 ลบ.</div><div class="barwrap"><div class="bar" style="width:84.94%;background:#16314f"></div></div></div>
+      <div class="alloc-row sub"><div class="nm">พันธบัตร / ตั๋วเงินคลัง / ธปท.</div><div class="vv">21.63% · 1,121.27 ลบ.</div></div>
+      <div class="alloc-row sub"><div class="nm">หุ้นกู้รัฐวิสาหกิจ / เอกชน</div><div class="vv">43.83% · 2,271.98 ลบ.</div></div>
+      <div class="alloc-row sub"><div class="nm">เงินฝาก / บัตรเงินฝาก</div><div class="vv">14.58% · 755.74 ลบ.</div></div>
+      <div class="alloc-row sub"><div class="nm">กองทุนรวมตราสารหนี้ภาครัฐ</div><div class="vv">2.93% · 151.70 ลบ.</div></div>
+      <div class="alloc-row sub"><div class="nm">ตราสารหนี้สถาบันการเงิน</div><div class="vv">1.98% · 102.39 ลบ.</div></div>
+
+      <div class="alloc-row"><div class="nm"><span class="dot" style="background:#c08b3e"></span>อสังหาริมทรัพย์ / REITs</div><div class="vv">7.64% · 395.98 ลบ.</div><div class="barwrap"><div class="bar" style="width:7.64%;background:#c08b3e"></div></div></div>
+      <div class="alloc-row sub"><div class="nm">REITs ไทย</div><div class="vv">4.06% · 210.24 ลบ.</div></div>
+      <div class="alloc-row sub"><div class="nm">REITs ต่างประเทศ</div><div class="vv">3.58% · 185.74 ลบ.</div></div>
+
+      <div class="alloc-row"><div class="nm"><span class="dot" style="background:#3f7d77"></span>ตราสารทุน</div><div class="vv">5.38% · 278.71 ลบ.</div><div class="barwrap"><div class="bar" style="width:5.38%;background:#3f7d77"></div></div></div>
+      <div class="alloc-row sub"><div class="nm">กองทุนรวมหุ้นต่างประเทศ</div><div class="vv">3.72% · 192.62 ลบ.</div></div>
+      <div class="alloc-row sub"><div class="nm">กองทุนรวมหุ้น</div><div class="vv">1.66% · 86.09 ลบ.</div></div>
+
+      <div class="alloc-row"><div class="nm"><span class="dot" style="background:#b15c3c"></span>สินค้าโภคภัณฑ์ (ทองคำ)</div><div class="vv">1.91% · 99.01 ลบ.</div><div class="barwrap"><div class="bar" style="width:1.91%;background:#b15c3c"></div></div></div>
+      <div class="alloc-row"><div class="nm"><span class="dot" style="background:#8c97a8"></span>เจ้าหนี้ / ลูกหนี้ / ค่าใช้จ่าย</div><div class="vv">0.13% · 6.84 ลบ.</div><div class="barwrap"><div class="bar" style="width:1.3%;background:#8c97a8"></div></div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <b>ต้นแบบ (Prototype)</b> — รายงานผลการดำเนินงานการลงทุน ศูนย์บริหารสินทรัพย์ มหาวิทยาลัยมหิดล · ข้อมูลตัวอย่างจากไฟล์ <span class="num">การคำนวณสัดส่วนลงทุน.xlsx</span> และ Performance Report Requirements ·
+  ออกแบบตามหลัก Shneiderman (Overview → Details on demand) และ IBCS · ที่มาข้อมูลผลตอบแทน: ธนาคารกสิกรไทย (KBank) · จัดทำโดยทีมข้อมูล DGSI
+</footer>
+
+<script>
+  const tabs = document.getElementById('tabs');
+  const views = document.querySelectorAll('.view');
+  tabs.addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    [...tabs.children].forEach(x=>x.classList.toggle('active', x===b));
+    const id = b.dataset.t;
+    views.forEach(v=>v.classList.toggle('active', v.id===id));
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  // toggle buttons (cosmetic)
+  document.querySelectorAll('.toggle').forEach(t=>{
+    t.addEventListener('click',e=>{
+      const b=e.target.closest('button'); if(!b)return;
+      [...t.children].forEach(x=>x.classList.toggle('on',x===b));
+    });
+  });
+</script>
+</body>
+</html>
