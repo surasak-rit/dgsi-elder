@@ -52,6 +52,7 @@ status: draft
 - [[10 - แผนบูรณาการ OpenMetadata (Data Catalog)]] — แผนนำ OpenMetadata มาเป็นเครื่องมือจริงของ SVC-03 บูรณาการกับเทมเพลตบัญชีข้อมูลและเครื่องมือ T01–T10
 - [[11 - สถาปัตยกรรมบูรณาการข้อมูลและบริการ API]] — สถานะปัจจุบันของ SVC-04: เชื่อมต้นทาง → ฐานข้อมูลกลาง (SQL Server/Oracle) → เปิด REST API ผ่าน Gateway ให้ระบบที่พัฒนาเอง พร้อมธรรมาภิบาลทุกชั้น
 - [[12 - สถาปัตยกรรม CI-CD ภายในองค์กร (Internal CI-CD Pipeline)]] — พิมพ์เขียว CI/CD แบบ DevSecOps บน GitLab CE + Harbor + Rancher/K8s: กลยุทธ์ branching, ขั้นตอน pipeline, GitOps deploy, การจัดการ secret และธรรมาภิบาลการส่งมอบซอฟต์แวร์
+- [[13 - คู่มือติดตั้งและตั้งค่า CI-CD (Setup & Configuration Guide)]] — runbook ลงมือทำจริงของเอกสาร 12: ติดตั้ง GitLab Runner (K8s), ตั้งค่า Harbor, Fleet GitOps, Sealed Secrets, Cosign+Kyverno พร้อมคำสั่งและ YAML และ smoke test
 
 ---
 
